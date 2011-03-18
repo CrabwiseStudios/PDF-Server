@@ -1,11 +1,9 @@
 ﻿namespace Crabwise.PdfServe
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Text;
+    using iTextSharp.text;
 
     public interface IDocumentTemplate
     {
+        Document CreateDocument(dynamic templateData);
     }
 }
