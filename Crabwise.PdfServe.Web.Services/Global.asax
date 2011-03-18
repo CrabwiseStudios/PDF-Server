@@ -1,0 +1,1 @@
+<%@ Application Codebehind="Global.asax.cs" Inherits="Crabwise.PdfServe.Web.Services.Global" Language="C#" %>
