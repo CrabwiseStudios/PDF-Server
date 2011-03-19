@@ -22,6 +22,7 @@ namespace Crabwise.PdfServe.Web.Services
         [WebGet(UriTemplate = "")]
         public List<SampleItem> GetCollection()
         {
+            
             // TODO: Replace the current implementation to return a collection of SampleItem instances
             return new List<SampleItem>() { new SampleItem() { Id = 1, StringValue = "Hello" } };
         }
