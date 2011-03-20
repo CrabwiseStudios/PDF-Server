@@ -45,9 +45,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CachedDocument.cs" />
     <Compile Include="CacheManager.cs" />
     <Compile Include="DocumentCache.cs" />
-    <Compile Include="DocumentTemplateAttribute.cs" />
+    <Compile Include="DocumentTemplateMetadataAttribute.cs" />
+    <Compile Include="DynamicTemplateData.cs" />
     <Compile Include="IDocumentTemplate.cs" />
     <Compile Include="IDocumentTemplateMetadata.cs" />
     <Compile Include="IgnoreCaseComparer.cs" />

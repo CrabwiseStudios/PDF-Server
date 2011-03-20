@@ -63,7 +63,7 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Service1.cs" />
+    <Compile Include="PdfServe.cs" />
     <Compile Include="SampleItem.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
@@ -72,6 +72,12 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Crabwise.PdfServe\Crabwise.PdfServe.csproj">
+      <Project>{5B9DDD65-865F-47EF-BD51-4DA5C484A26D}</Project>
+      <Name>Crabwise.PdfServe</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v10.0\WebApplications\Microsoft.WebApplication.targets" />

@@ -1,0 +1,12 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<publishData>
+  <publishProfile publishUrl="ftp://ftp.crabwisestudios.com/PDFServe/" deleteExistingFiles="False" ftpAnonymousLogin="False" ftpPassiveMode="True" msdeploySite="" msdeploySiteID="" msdeployRemoteSitePhysicalPath="" msdeployAllowUntrustedCertificate="False" msdeploySkipExtraFilesOnServer="True" msdeployMarkAsApp="False" profileName="Winhost" publishMethod="FTP" replaceMatchingFiles="True" userName="crabwise" savePWD="True" userPWD="AQAAANCMnd8BFdERjHoAwE/Cl+sBAAAAgr1pcfaVf0+f4ZZxRZhZ+gAAAAACAAAAAAAQZgAAAAEAACAAAAB65UmAjv3gKpswCjrs+ysVLGs4c/mCw3VE276+Brn9HgAAAAAOgAAAAAIAACAAAADyQCOmwdicuRu8xsDyp6gQ+WV1rdNpfgMDwSCYCMa2TyAAAABFN7MARcR6jByDU2R+YZv2RxpINNNCBm1aQBQClDZrFEAAAAC/3CfTCiN8ey/silaRsNYbLvPUF9BEeej50DflM6KwpKGQyjPqobYtuAOopcOsU5ihSxn897FO09PtmXeBO8eW" SelectedForPublish="True">
+    <file relUrl="bin/Crabwise.PdfServe.pdb" publishTime="03/20/2011 17:34:29" />
+    <file relUrl="bin/Crabwise.PdfServe.dll" publishTime="03/20/2011 17:34:30" />
+    <file relUrl="bin/Crabwise.PdfServe.Web.Services.dll" publishTime="03/20/2011 17:36:32" />
+    <file relUrl="Web.config" publishTime="03/20/2011 17:29:59" />
+    <file relUrl="bin/Crabwise.PdfServe.Web.Services.pdb" publishTime="03/20/2011 17:36:32" />
+    <file relUrl="bin/itextsharp.dll" publishTime="03/17/2011 13:17:44" />
+    <file relUrl="Global.asax" publishTime="03/18/2011 15:09:52" />
+  </publishProfile>
+</publishData>

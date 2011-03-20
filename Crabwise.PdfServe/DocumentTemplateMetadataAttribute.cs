@@ -3,12 +3,14 @@
     using System;
     using System.ComponentModel.Composition;
 
-    [AttributeUsage(AttributeTargets.Class, Inherited = false, AllowMultiple = false)]
-    public sealed class DocumentTemplateAttribute : ExportAttribute
+    [MetadataAttribute]
+    [AttributeUsage(AttributeTargets.Class, AllowMultiple = false)]
+    public sealed class DocumentTemplateMetadataAttribute : ExportAttribute
     {
         private readonly string name;
 
-        public DocumentTemplateAttribute(string name)
+        public DocumentTemplateMetadataAttribute(string name)
+            : base(typeof(IDocumentTemplateMetadata))
         {
             this.name = name;
         }

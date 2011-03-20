@@ -1,21 +1,27 @@
 ﻿namespace Crabwise.PdfServe
 {
     using System;
-    using System.ComponentModel.Composition;
-    using System.IO;
-    using System.ComponentModel.Composition.Hosting;
     using System.Collections.Concurrent;
-    using System.Threading.Tasks;
     using System.Collections.Generic;
+    using System.ComponentModel.Composition;
+    using System.ComponentModel.Composition.Hosting;
+    using System.IO;
+    using System.Security.Cryptography;
+    using System.Text;
+    using System.Threading;
+    using System.Linq;
 
     public class DocumentCache
     {
         private readonly string documentDirectoryPath;
         private readonly string templateDirectoryPath;
+        private readonly ConcurrentDictionary<byte[], CachedDocument> cachedDocuments = new ConcurrentDictionary<byte[], CachedDocument>();
+        private readonly ReaderWriterLockSlim documentLifespanLock = new ReaderWriterLockSlim();
 
+        private Timer cleanupTimer;
         private TimeSpan documentLifespan;
 
-        [ImportMany]
+        [ImportMany(typeof(IDocumentTemplate))]
         public Lazy<IDocumentTemplate, IDocumentTemplateMetadata>[] DocumentTemplates { get; private set; }
 
         internal DocumentCache(string documentDirectoryPath, string templateDirectoryPath)
@@ -27,17 +33,22 @@
         {
             if (!Directory.Exists(documentDirectoryPath))
             {
-                throw new DirectoryNotFoundException("Could not find the document storage directory.");
+                throw new DirectoryNotFoundException("Could not find the document directory at \"" + documentDirectoryPath + "\".");
+            }
+
+            if (Directory.EnumerateFileSystemEntries(documentDirectoryPath).Any())
+            {
+                throw new ArgumentException("The document directory is not empty. A cache can only be initialized in an empty folder.");
             }
 
             if (!Directory.Exists(templateDirectoryPath))
             {
-                throw new DirectoryNotFoundException("Could not find the template storage directory.");
+                throw new DirectoryNotFoundException("Could not find the template directory at \"" + templateDirectoryPath + "\".");
             }
 
             this.documentDirectoryPath = documentDirectoryPath;
             this.templateDirectoryPath = templateDirectoryPath;
-            this.documentLifespan = documentLifespan;
+            this.DocumentLifespan = documentLifespan;
 
             var catalog = new DirectoryCatalog(templateDirectoryPath);
             var container = new CompositionContainer(catalog);
@@ -69,46 +80,95 @@
         {
             get
             {
-                return this.documentLifespan;
+                try
+                {
+                    this.documentLifespanLock.EnterReadLock();
+                    return this.documentLifespan;
+                }
+                finally
+                {
+                    this.documentLifespanLock.ExitReadLock();
+                }
             }
 
             set
             {
-                this.documentLifespan = value;
+                try
+                {
+                    this.documentLifespanLock.EnterUpgradeableReadLock();
+                    if (this.documentLifespan != value)
+                    {
+                        try
+                        {
+                            this.documentLifespanLock.EnterWriteLock();
+
+                            this.documentLifespan = value;
+                            this.cleanupTimer = new Timer(obj => this.Cleanup(), null, TimeSpan.Zero, value);
+                        }
+                        finally
+                        {
+                            this.documentLifespanLock.ExitWriteLock();
+                        }
+                    }
+                }
+                finally
+                {
+                    this.documentLifespanLock.ExitUpgradeableReadLock();
+                }
             }
         }
 
         public Stream GetOrCreateDocument(string templateName, IDictionary<string, object> templateData)
         {
-            throw new NotImplementedException();
+            byte[] hash = ComputeHash(templateName, templateData);
+            var base64Hash = Convert.ToBase64String(hash).Replace('/', '-');
+            var path = Path.Combine(this.documentDirectoryPath, base64Hash + ".pdf");
+
+            IDocumentTemplate documentTemplate = null;
+            foreach (var template in this.DocumentTemplates)
+            {
+                if (template.Metadata.Name.Equals(templateName, StringComparison.OrdinalIgnoreCase))
+                {
+                    documentTemplate = template.Value;
+                    break;
+                }
+            }
+
+            if (documentTemplate == null)
+            {
+                throw new ArgumentException(string.Format("Could not find a template by the name of \"{0\".", templateName), "templateName");
+            }
+
+            var cachedDocument = this.cachedDocuments.GetOrAdd(hash, new CachedDocument(path, documentTemplate, templateData));
+            return cachedDocument.GetContentStream();
         }
 
         public void Cleanup()
         {
-            throw new NotImplementedException();
-        }
-
-        public void Rebuild()
-        {
-            throw new NotImplementedException();
-        }
-
-        public override bool Equals(object obj)
-        {
-            if (obj == null || GetType() != obj.GetType())
+            foreach (var cachedDocument in this.cachedDocuments.Values)
             {
-                return false;
+                if (cachedDocument.CreationDate + this.documentLifespan < DateTime.UtcNow)
+                {
+                    cachedDocument.MarkForDeletion();
+                }
+            }
+        }
+
+        private static byte[] ComputeHash(string templateName, IDictionary<string, object> templateData)
+        {
+            string identifier = templateName;
+            foreach (var keyValue in templateData)
+            {
+                identifier += keyValue.Key + keyValue.Value;
             }
 
-            DocumentCache other = (DocumentCache)obj;
-            var documentStoragePathsEqual = this.documentDirectoryPath.Equals(other.documentDirectoryPath, StringComparison.OrdinalIgnoreCase);
-            var templateStoragePathsEqual = this.templateDirectoryPath.Equals(other.templateDirectoryPath, StringComparison.OrdinalIgnoreCase);
-            return documentStoragePathsEqual && templateStoragePathsEqual;
-        }
+            byte[] hash;
+            using (var sha512 = new SHA512Managed())
+            {
+                hash = sha512.ComputeHash(Encoding.Unicode.GetBytes(identifier));
+            }
 
-        public override int GetHashCode()
-        {
-            return this.documentDirectoryPath.GetHashCode() ^ this.templateDirectoryPath.GetHashCode();
+            return hash;
         }
     }
 }
