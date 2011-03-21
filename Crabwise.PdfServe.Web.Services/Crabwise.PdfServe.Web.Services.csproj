@@ -63,7 +63,8 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="PdfServe.cs" />
+    <Compile Include="IPdfService.cs" />
+    <Compile Include="PdfService.cs" />
     <Compile Include="SampleItem.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>

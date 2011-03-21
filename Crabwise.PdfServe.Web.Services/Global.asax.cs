@@ -27,16 +27,16 @@ namespace Crabwise.PdfServe.Web.Services
             var documentsDirectory = Server.MapPath("~/Documents");
             var templatesDirectory = Server.MapPath("~/Templates");
 
-            //if (Directory.Exists(documentsDirectory))
-            //{
-            //    Directory.Delete(documentsDirectory, true);
-            //}
-            //Directory.CreateDirectory(documentsDirectory);
+            if (Directory.Exists(documentsDirectory))
+            {
+                Directory.Delete(documentsDirectory, true);
+            }
+            Directory.CreateDirectory(documentsDirectory);
 
-            //if (!Directory.Exists(templatesDirectory))
-            //{
-            //    Directory.CreateDirectory(templatesDirectory);
-            //}
+            if (!Directory.Exists(templatesDirectory))
+            {
+                Directory.CreateDirectory(templatesDirectory);
+            }
 
             pdfDocumentCache = cacheManager.CreateCache(documentsDirectory, templatesDirectory);
         }
@@ -44,7 +44,7 @@ namespace Crabwise.PdfServe.Web.Services
         private void RegisterRoutes()
         {
             // Edit the base address of Service1 by replacing the "Service1" string below
-            RouteTable.Routes.Add(new ServiceRoute("", new WebServiceHostFactory(), typeof(PdfServe)));
+            RouteTable.Routes.Add(new ServiceRoute("", new WebServiceHostFactory(), typeof(PdfService)));
         }
     }
 }

@@ -18,7 +18,6 @@
         private readonly ConcurrentDictionary<byte[], CachedDocument> cachedDocuments = new ConcurrentDictionary<byte[], CachedDocument>();
         private readonly ReaderWriterLockSlim documentLifespanLock = new ReaderWriterLockSlim();
 
-        private Timer cleanupTimer;
         private TimeSpan documentLifespan;
 
         [ImportMany(typeof(IDocumentTemplate))]
@@ -103,7 +102,6 @@
                             this.documentLifespanLock.EnterWriteLock();
 
                             this.documentLifespan = value;
-                            this.cleanupTimer = new Timer(obj => this.Cleanup(), null, TimeSpan.Zero, value);
                         }
                         finally
                         {
