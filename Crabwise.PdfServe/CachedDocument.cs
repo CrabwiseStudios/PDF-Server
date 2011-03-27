@@ -17,6 +17,12 @@
         private readonly IDictionary<string, object> templateData;
         private bool created = false;
 
+        public CachedDocument(string path)
+        {
+            this.path = path;
+            this.CreationDate = File.GetCreationTimeUtc(path);
+        }
+
         public CachedDocument(string path, IDocumentTemplate template, IDictionary<string, object> templateData)
         {
             this.path = path;

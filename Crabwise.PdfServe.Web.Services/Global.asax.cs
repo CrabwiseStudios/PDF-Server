@@ -27,11 +27,10 @@ namespace Crabwise.PdfServe.Web.Services
             var documentsDirectory = Server.MapPath("~/Documents");
             var templatesDirectory = Server.MapPath("~/Templates");
 
-            if (Directory.Exists(documentsDirectory))
+            if (!Directory.Exists(documentsDirectory))
             {
-                Directory.Delete(documentsDirectory, true);
+                Directory.CreateDirectory(documentsDirectory);
             }
-            Directory.CreateDirectory(documentsDirectory);
 
             if (!Directory.Exists(templatesDirectory))
             {

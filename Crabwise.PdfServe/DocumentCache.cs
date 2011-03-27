@@ -9,7 +9,6 @@
     using System.Security.Cryptography;
     using System.Text;
     using System.Threading;
-    using System.Linq;
 
     public class DocumentCache
     {
@@ -35,11 +34,6 @@
                 throw new DirectoryNotFoundException("Could not find the document directory at \"" + documentDirectoryPath + "\".");
             }
 
-            if (Directory.EnumerateFileSystemEntries(documentDirectoryPath).Any())
-            {
-                throw new ArgumentException("The document directory is not empty. A cache can only be initialized in an empty folder.");
-            }
-
             if (!Directory.Exists(templateDirectoryPath))
             {
                 throw new DirectoryNotFoundException("Could not find the template directory at \"" + templateDirectoryPath + "\".");
@@ -56,6 +50,14 @@
             if (this.DocumentTemplates.Length == 0)
             {
                 throw new ArgumentException("Could not find any templates in the provided directory.", "templateDirectoryPath");
+            }
+
+            var pdfDocuments = Directory.GetFiles(documentDirectoryPath, "*.pdf");
+            foreach (var document in pdfDocuments)
+            {
+                var base64Hash = Path.GetFileNameWithoutExtension(document);
+                var hash = GetHashArray(base64Hash);
+                this.cachedDocuments.TryAdd(hash, new CachedDocument(document));
             }
         }
 
@@ -119,7 +121,7 @@
         public Stream GetOrCreateDocument(string templateName, IDictionary<string, object> templateData)
         {
             byte[] hash = ComputeHash(templateName, templateData);
-            var base64Hash = Convert.ToBase64String(hash).Replace('/', '-');
+            var base64Hash = GetHashString(hash);
             var path = Path.Combine(this.documentDirectoryPath, base64Hash + ".pdf");
 
             IDocumentTemplate documentTemplate = null;
@@ -150,6 +152,16 @@
                     cachedDocument.MarkForDeletion();
                 }
             }
+        }
+
+        private static string GetHashString(byte[] hash)
+        {
+            return Convert.ToBase64String(hash).Replace('/', '-');
+        }
+
+        private static byte[] GetHashArray(string hash)
+        {
+            return Convert.FromBase64String(hash.Replace('-', '/'));
         }
 
         private static byte[] ComputeHash(string templateName, IDictionary<string, object> templateData)
